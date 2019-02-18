@@ -2,7 +2,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import sympy
 import os
-import time
+#import time
 
 
 def loadData():
@@ -18,6 +18,7 @@ def loadData():
             elif "walk" in filename:
                 data["walk"].append(csv)
     return data
+
 
 def plotData(data, savepng=""):
     """ Plots the signals from the data fead"""
@@ -42,27 +43,28 @@ def plotData(data, savepng=""):
     plt.show()
 
 
-
-
 if __name__ == '__main__':
     data = loadData()
-    print("Show run")
-    print(data["run"])
-    print("Show walk")
-    print(data["walk"])
-    plotData(data, savepng="walk_and_run.png")
 
-# Showing the signal.
-# walk0 walk1 walk2
-# run0  run1  run2
+    run1z = data['run'][0][:,2]
+    walk1z = data['walk'][0][:,2]
 
-# plt.subplot(211)
-# for file in data:
-#     x = file[:,0]
-#     y = file[:,1]
-#     z = file[:,2]
-#     plt.plot(x + y + z)
-# plt.subplot(212)
+    from scipy.fftpack import fft
 
-
-# plt.show()
+    # Number of sample points
+    N = 100
+    # sample spacing
+    T = 1.0 / 800.0
+    x = np.linspace(0.0, N * T, N)
+    runy = run1z
+    walky = walk1z
+    runf = fft(runy)
+    walkf = fft(walky)
+    xf = np.linspace(0.0, 1.0 / (2.0 * T), N // 2)
+    import matplotlib.pyplot as plt
+    plt.subplot(1,2,1)
+    plt.plot(xf, 2.0 / N * np.abs(runf[0:N // 2]))
+    plt.subplot(1, 2, 2)
+    plt.plot(xf, 2.0 / N * np.abs(walkf[0:N // 2]))
+    plt.grid()
+    plt.show()
