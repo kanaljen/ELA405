@@ -1,9 +1,7 @@
 import numpy as np
 from scipy.fftpack import fft
 import matplotlib.pyplot as plt
-import sympy
 import os
-#import time
 
 
 def loadData():
