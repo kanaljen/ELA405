@@ -1,4 +1,5 @@
 import numpy as np
+from scipy.fftpack import fft
 import matplotlib.pyplot as plt
 import sympy
 import os
@@ -42,6 +43,21 @@ def plotData(data, savepng=""):
     plt.savefig(savepng, dpi=300, frameon=True, pad_inches=1)
     plt.show()
 
+def gen_frequesyresponse(signal):
+    """ Generates the frequensy response of the signal
+        in: signal 1d vector
+        out: tf a vector for the carry vector.
+        out: fr is the response.
+    """
+    T = 1/100 # Hz is our sampling speed.
+    fr = fft(signal)
+    N = len(signal)
+    t = np.linspace(0.0, 1.0 / (2.0 * T), N // 2)
+    fr =  2.0 / N * np.abs(fr[0:N // 2])
+    ft  = np.linspace(0,1/(2 * T ), N//2 )
+    return ft,fr
+
+
 
 if __name__ == '__main__':
     data = loadData()
@@ -49,22 +65,29 @@ if __name__ == '__main__':
     run1z = data['run'][0][:,2]
     walk1z = data['walk'][0][:,2]
 
-    from scipy.fftpack import fft
+    nrof_runs = len(data['run'])
+    nrof_walks = len(data['walk'])
+    rows = max(nrof_runs, nrof_walks)
+    print("runs={r}, walks={w}".format(r=nrof_runs, w=nrof_walks))
+    count = 1
+    #plt.subplot(1,rows,1)
+    for signal in data['run']:
+        plt.subplot(2,rows,count)
+        plt.xlim(0,10)
+        plt.grid()
+        plt.title("Runnig {}".format(count))
+        ft, fr = gen_frequesyresponse(signal[:,2])
+        plt.plot(ft, fr)
+        count += 1
 
-    # Number of sample points
-    N = 100
-    # sample spacing
-    T = 1.0 / 800.0
-    x = np.linspace(0.0, N * T, N)
-    runy = run1z
-    walky = walk1z
-    runf = fft(runy)
-    walkf = fft(walky)
-    xf = np.linspace(0.0, 1.0 / (2.0 * T), N // 2)
-    import matplotlib.pyplot as plt
-    plt.subplot(1,2,1)
-    plt.plot(xf, 2.0 / N * np.abs(runf[0:N // 2]))
-    plt.subplot(1, 2, 2)
-    plt.plot(xf, 2.0 / N * np.abs(walkf[0:N // 2]))
-    plt.grid()
+
+    for signal in data['walk']:
+        plt.subplot(2,rows,count)
+        plt.xlim(0,10)
+        plt.grid()
+        plt.title("Walking {}".format(-1*(rows-count)))
+        ft, fr = gen_frequesyresponse(signal[:,2])
+        plt.plot(ft, fr)
+        count += 1
+
     plt.show()
