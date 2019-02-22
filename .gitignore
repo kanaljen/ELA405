@@ -2,3 +2,4 @@
 .DS_Store
 plugg.rtf
 venv/
+__pycache__
