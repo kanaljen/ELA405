@@ -28,6 +28,6 @@ def splitData():
                 floor = ceil
                 ceil += 1000
     dataset = dict()
-    dataset['run'] = split[0:8]
-    dataset['walk'] = split[9:len(dataset)]
+    dataset['run'] = split[0:9]
+    dataset['walk'] = split[9:len(split)]
     return dataset

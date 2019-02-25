@@ -1,6 +1,7 @@
 import numpy as np
 from scipy.fftpack import fft
 import matplotlib.pyplot as plt
+from split import splitData
 import os
 
 
@@ -55,37 +56,19 @@ def gen_frequesyresponse(signal):
     ft  = np.linspace(0,1/(2 * T ), N//2 )
     return ft,fr
 
+def afrequesy_plot(data, run_or_walk:str, subplot:tuple):
+    plt.subplot(subplot[0], subplot[1],subplot[2])
+    plt.grid()
+    plt.title("{}".format(run_or_walk.title()))
+    plt.xlim(0,4)
+    plt.ylim(0,10)
+    for signal in data[run_or_walk]:
+        ft,fl = gen_frequesyresponse(signal)
+        plt.plot(ft,fl)
 
 
 if __name__ == '__main__':
-    data = loadData()
-
-    run1z = data['run'][0][:,2]
-    walk1z = data['walk'][0][:,2]
-
-    nrof_runs = len(data['run'])
-    nrof_walks = len(data['walk'])
-    rows = max(nrof_runs, nrof_walks)
-    print("runs={r}, walks={w}".format(r=nrof_runs, w=nrof_walks))
-    count = 1
-    #plt.subplot(1,rows,1)
-    for signal in data['run']:
-        plt.subplot(2,rows,count)
-        plt.xlim(0,10)
-        plt.grid()
-        plt.title("Runnig {}".format(count))
-        ft, fr = gen_frequesyresponse(signal[:,2])
-        plt.plot(ft, fr)
-        count += 1
-
-
-    for signal in data['walk']:
-        plt.subplot(2,rows,count)
-        plt.xlim(0,10)
-        plt.grid()
-        plt.title("Walking {}".format(-1*(rows-count)))
-        ft, fr = gen_frequesyresponse(signal[:,2])
-        plt.plot(ft, fr)
-        count += 1
-
+    data = splitData()
+    afrequesy_plot(data,'walk',(2,1,1))
+    afrequesy_plot(data,'run',(2,1,2))
     plt.show()
