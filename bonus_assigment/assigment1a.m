@@ -4,23 +4,24 @@ close all
 % Plot signal, noise, and their sum (a noisy signal)
 % plot their fourier transforms
 
-Fs = 1000;             % Sampling frequency
+%Fs = 1000;             % Sampling frequency
+Fs = 150*2;             % Sampling frequency
 T = 1/Fs;             % Sampling period
-%L = Fs;               % Length of signal (Always one second long)
-L = 1000;               % Length of signal (Always one second long)
+L = Fs;               % Length of signal (Always one second long)
+%L = 1000;               % Length of signal (Always one second long)
 t = (0:L-1)*T;        % Time vector
 fucktard = 1:150;
 
 w0 = 50;      % Hz
 
 
-k = (1-0)/(0-150)*Fs;
-f = @(t) k*t + 1;
+%k = (1-0)/(0-150);
+f = @(t) -1*t + 1;
 
 %Form a signal containing a 50 Hz sinusoid of amplitude 1.
-%S = sin(2*pi*50*t);
-S =  cos(2*pi*w0*t);
-S = (k*t + 1).*(1/2).*( exp(-j*2*pi*w0*t) + exp(j*2*pi*w0*t)) ;
+%S = f(t).*sin(2*pi*50*t);
+S =  f(t).*cos(2*pi*w0*t);
+%S = (k*t + 1).*(1/2).*( exp(-j*2*pi*w0*t) + exp(j*2*pi*w0*t)) ;
 
 %return
 
@@ -31,7 +32,7 @@ X = S + N;
 
 %FIG 1 PURE SIGNAL
 figure(1), subplot(2,3,1)
-plot(1000*t(fucktard),S(fucktard), '-*')
+plot(1000*t,S, '-*')
 title('Pure Signal')
 xlabel('t (milliseconds)')
 ylabel('X(t)')
