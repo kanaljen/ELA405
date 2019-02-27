@@ -3,6 +3,7 @@ from scipy.fftpack import fft
 from scipy.signal import medfilt
 import matplotlib.pyplot as plt
 from split import splitData
+from matplotlib import rc
 import os
 
 
@@ -50,42 +51,67 @@ def gen_frequesyresponse(signal):
         out: fr is the response.
     """
     T = 1/100 # Hz is our sampling speed.
-    fr = fft(signal)
-    fr[0] = 0
+    fsignal = fft(signal)
+    fsignal[0] = 0
     N = len(signal)
-    t = np.linspace(0.0, 1.0 / (2.0 * T), N // 2)
-    fr =  2.0 / N * np.abs(fr[0:N // 2])
-    ft  = np.linspace(0,1/(2 * T ), N//2 )
-    return ft,fr
+    fsignal =  2.0 / N * np.abs(fsignal[0:N // 2])
+    frequency = np.linspace(0,1/(2 * T ), N//2 )
+    return {'frequency':frequency,'magnitude':fsignal}
 
 def afrequesy_plot(data, run_or_walk:str, subplot:tuple):
     plt.subplot(subplot[0], subplot[1],subplot[2])
     plt.grid()
     plt.title("{}".format(run_or_walk.title()))
+    plt.xlabel(r'\textbf{frequency} ($\omega$)')
+    plt.ylabel(r'($|S(J\omega )|$)')
     plt.xlim(0,4)
     plt.ylim(0,10)
     for signal in data[run_or_walk]:
-        ft,fl = gen_frequesyresponse(signal)
-        plt.plot(ft,fl)
+        x = gen_frequesyresponse(signal)
+        plt.plot(x['frequency'], x['magnitude'])
 
-def median_plot(data:list, run_or_walk:str, subplot:tuple):
+
+def movingmedian_plot(data, run_or_walk:str, subplot:tuple):
     plt.subplot(subplot[0], subplot[1],subplot[2])
     plt.grid()
-    plt.title("{}".format(run_or_walk.title()))
-    # plt.ylim(0,10)
-    plt.xlim(0,100)
-    length = max([len(x) for x in data[run_or_walk]])
-    d = abs(np.array(data[run_or_walk]))
-    env1 = np.zeros_like(d)
-    env2 = np.zeros_like(d)
-    for i in np.arange(len(d)):
-        env1[i] = median(d[max(i-1000,0):i+1])
-        env2[i] = mean(d[max(i-1000,0):i+1])
-    plt.plot(range(len(d)), env1, color = 'green')
-    plt.plot(range(len(d)), env2, color = 'red')
+    plt.title("{} avrage".format(run_or_walk.title()))
+    plt.xlabel(r'\textbf{frequency} ($\omega$)')
+    plt.ylabel(r'($|S(J\omega )|$)')
+    plt.xlim(0,4)
+    plt.ylim(0,10)
+    temp = list()
+    w_axis = list()
+    for signal in data[run_or_walk]:
+        x = signal
+        xa = gen_frequesyresponse(x)
+        w_axis = xa
+        temp.append(xa['magnitude'])
+    length = max([len(x) for x in temp])
+    #print("max legth is: {}".format(legth))
+    moving_avg = np.zeros(length)
+    min_sigma = np.zeros(length)
+    max_sigma = np.zeros(length)
+    for w in np.arange(length):
+        tot = 0
+        c = 0
+        sigma = 0
+        for sig in temp:
+            tot += sig[w]
+            c += 1
+        moving_avg[w] = tot/c
+        for sig in temp:
+            sigma += (sig[w]- moving_avg[w])**2
+        sigma = np.sqrt((1/c)*sigma)
+        min_sigma[w] = moving_avg[w] - sigma
+        max_sigma[w] = moving_avg[w] + sigma
+
+    moving_avg = np.array(moving_avg).transpose()
+    plt.fill_between(xa['frequency'],min_sigma,max_sigma,alpha=0.4)
+    plt.plot(xa['frequency'],moving_avg,'r')
 
 
 
+    #plt.plot(x['frequency'], x['magnitude'])
 
 
 def median(lst): return np.median(np.array(lst))
@@ -93,18 +119,13 @@ def mean(lst): return sum(lst)/len(lst)
 
 
 
-
-
-
-
-
-
-
-
 if __name__ == '__main__':
     data = splitData()
+    plt.rc('text', usetex=True)
+    plt.rc('font', family='serif')
     afrequesy_plot(data,'walk',(4,1,1))
     afrequesy_plot(data,'run',(4,1,2))
-    median_plot(data, 'walk', (4,1,3))
-    median_plot(data, 'run', (4,1,4))
+    movingmedian_plot(data,'walk',(4,1,3))
+    movingmedian_plot(data,'run',(4,1,4))
+    plt.subplots_adjust(hspace=0.53)
     plt.show()
