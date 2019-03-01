@@ -71,14 +71,7 @@ def afrequesy_plot(data, run_or_walk:str, subplot:tuple):
         plt.plot(x['frequency'], x['magnitude'])
 
 
-def movingmedian_plot(data, run_or_walk:str, subplot:tuple):
-    plt.subplot(subplot[0], subplot[1],subplot[2])
-    plt.grid()
-    plt.title("{} avrage".format(run_or_walk.title()))
-    plt.xlabel(r'\textbf{frequency} ($\omega$)')
-    plt.ylabel(r'($|S(J\omega )|$)')
-    plt.xlim(0,4)
-    plt.ylim(0,10)
+def avrage_data(data, run_or_walk:str):
     temp = list()
     w_axis = list()
     for signal in data[run_or_walk]:
@@ -106,6 +99,19 @@ def movingmedian_plot(data, run_or_walk:str, subplot:tuple):
         max_sigma[w] = moving_avg[w] + sigma
 
     moving_avg = np.array(moving_avg).transpose()
+    #return (xa, moving_avg, min_sigma, max_sigma)
+    return {'frequency':xa, 'avg':moving_avg, 'min sigma':min_sigma, 'max sigma':max_sigma}
+
+def movingmedian_plot(data, run_or_walk:str, subplot:tuple):
+    plt.subplot(subplot[0], subplot[1],subplot[2])
+    plt.grid()
+    plt.title("{} avrage".format(run_or_walk.title()))
+    plt.xlabel(r'\textbf{frequency} ($\omega$)')
+    plt.ylabel(r'($|S(J\omega )|$)')
+    plt.xlim(0,4)
+    plt.ylim(0,10)
+    outtemp = avrage_data(data,run_or_walk)
+    xa, moving_avg, min_sigma, max_sigma = outtemp['frequency'], outtemp['avg'], outtemp['min sigma'], outtemp['max sigma']
     plt.fill_between(xa['frequency'],min_sigma,max_sigma,alpha=0.4)
     plt.plot(xa['frequency'],moving_avg,'r')
 
