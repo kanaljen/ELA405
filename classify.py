@@ -35,16 +35,16 @@ if __name__ == '__main__':
     for key in data.keys():
         if key == 'run':
             cut = cutrunning
-            plt.subplot(2,1,1)
+            plt.subplot(2,1,2)
         else:
             cut = cutwalking
-            plt.subplot(2,1,2)
-        plt.xlim([15,30])
+            plt.subplot(2,1,1)
+        plt.xlim([0,5])
         plt.title("{} filerd".format(key))
         for signal in data[key]:
             fsignal = gen_frequesyresponse(signal)
             psignal = prune_f(fsignal['magnitude'], cut)
-            plt.plot(psignal)
+            plt.plot(fsignal['frequency'],psignal)
     plt.show()
 
 
