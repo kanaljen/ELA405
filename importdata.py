@@ -51,5 +51,5 @@ def splitData():
     return datasets
 
 
-def readData():
+def data():
     return splitData()
