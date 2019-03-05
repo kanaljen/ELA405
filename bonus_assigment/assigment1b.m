@@ -32,28 +32,13 @@ N = randn(size(t));
 X = S + N;
 
 %FIG 1 PURE SIGNAL
-figure(1), subplot(2,3,1)
+figure(1), subplot(2,1,1)
 plot(1000*t,S, '-*')
 title('Pure Signal')
 xlabel('t (milliseconds)')
 ylabel('X(t)')
 ylim([-2 2])
 
-%FIG 2 NOISE
-figure(1), subplot(2,3,2)
-plot(1000*t(fucktard),N(fucktard))
-title('Noise')
-xlabel('t (milliseconds)')
-ylabel('X(t)')
-ylim([-6 6])
-
-%FIG 3 NOISY SIGNAL
-figure(1), subplot(2,3,3)
-plot(1000*t(fucktard),X(fucktard))
-title('Noisy Signal')
-xlabel('t (milliseconds)')
-ylabel('X(t)')
-ylim([-6 6])
 
 
 %FIG 4 PURE SIGNAL FFT
@@ -62,38 +47,13 @@ f = Fs*(0:(L/2))/L;
 P2 = abs(Y/L);
 P1 = P2(1:L/2+1);
 P1(2:end-1) = 2*P1(2:end-1);
-subplot(2,3,4)
+subplot(2,1,2)
 plot(f, P1)
 title('fft(Pure Signal)') %Single-Sided Amplitude Spectrum of S(t)
 xlabel('f (Hz)')
 ylabel('|P1(f)|')
 ylim([0, 1])
 
-%FIG 5 NOISE FFT
-Y = fft(N);
-f = Fs*(0:(L/2))/L;
-P2 = abs(Y/L);
-P1 = P2(1:L/2+1);
-P1(2:end-1) = 2*P1(2:end-1);
-subplot(2,3,5)
-plot(P1)
-title('fft(Noise)') %Single-Sided Amplitude Spectrum of S(t)
-xlabel('f (Hz)')
-ylabel('|P1(f)|')
-ylim([0, 1])
-
-%FIG 6 NOISY SIGNAL FFT
-Y = fft(X);
-f = Fs*(0:(L/2))/L;
-P2 = abs(Y/L);
-P1 = P2(1:L/2+1);
-P1(2:end-1) = 2*P1(2:end-1);
-subplot(2,3,6)
-plot(P1)
-title('fft(Noisy Signal)') %Single-Sided Amplitude Spectrum of X(t)'
-xlabel('f (Hz)')
-ylabel('|P1(f)|')
-ylim([0, 1])
 
 
 function x = mytestplot()

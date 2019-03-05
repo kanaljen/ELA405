@@ -10,15 +10,6 @@ from split import splitData
 # for both signals.
 ########################################
 
-def frequensy_avrage(data, run_or_walk:str):
-    '''
-    Generates the avrage frequensy diagram
-    in: data is the data flow.
-    in: run_or_walk slects the class.
-    out: np.array() statictical signal.
-    '''
-
-    pass
 
 
 
@@ -34,14 +25,16 @@ if __name__ == '__main__':
     ax[1].set_title('run distrobution plot')
     ax[2].set_title('walk box plot')
     ax[3].set_title('run box plot')
-    ax[0].set_xlim([0,1])
-    ax[1].set_xlim([0,1])
-    ax[2].set_xlim([0,1])
-    ax[3].set_xlim([0,1])
+    ax[0].set_xlim([-1,1])
+    ax[1].set_xlim([-1,1])
+    ax[2].set_xlim([-1,1])
+    ax[3].set_xlim([-1,1])
     twalk = avrage_data(data, 'walk')
     trun  = avrage_data(data, 'run')
     se.boxplot(twalk['avg'], ax=ax[2])
     se.boxplot(trun['avg'], ax=ax[3])
     se.distplot(twalk['avg'], ax=ax[0])
     se.distplot(trun['avg'], ax=ax[1])
-    plt.show()
+    plt.subplots_adjust(hspace=0.53)
+    plt.savefig('presentation/figures/plot_sttdiv.png')
+    # plt.show()
