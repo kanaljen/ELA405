@@ -51,26 +51,30 @@ class fir_filter:
             plt.subplot(subplot)
         # Plot the filterd signal
         m,s = self.get_statistics()
-        t = np.arange(len(self._good_t))
-        #plt.fill_between(t,m+s,m-s, facecolor='green')
-        # temp = np.sin(self._good_t[0])
-        # print(np.size(self._good_t[0]))
-        # print(self._good_t[0])
+        #t = np.arange(len(self._good_t))
+        #t = self._good_t[0]
+        t = self._t
+        hig_sima = t*0 + (m+s)
+        low_sima = t*0 + (m-s)
+        fig1=plt.fill_between(t,hig_sima,low_sima, facecolor='blue', alpha=0.2 , label='$\sigma$')
         #plt.fill_between(self._good_t,temp ,0, facecolor='green')
-        plt.plot(self._t - delay, self._filterd_x, 'r-')
+        fig2=plt.plot(self._t - delay, self._filterd_x, 'r-', label='Bad signal')
         # Plot the good part of the filterd signal
-        plt.plot(self._t[self._N-1:]-delay, self._filterd_x[self._N-1:], 'g', linewidth=4)
+        fig3=plt.plot(self._t[self._N-1:]-delay, self._filterd_x[self._N-1:], 'g', linewidth=4 ,label='Good signal')
         plt.title(title)
+        plt.legend(["Bad","Good", "$\sigma$"], loc=4)
         plt.xlabel('t')
         plt.ylabel('acceleration')
         plt.grid(True)
         pass
 
-    def plot_raw_signal(self,xlim=False,ylim=False,subplot=False):
+    def plot_raw_signal(self, title="", xlim=False,ylim=False,subplot=False):
         if not isinstance(subplot, bool):
             plt.subplot(subplot)
         plt.plot(self._t,self._signal)
-        plt.title("RAW input signal")
+        plt.title(title)
+        plt.xlabel("time (t)")
+        plt.ylabel("amplitude (g)")
         if not isinstance(xlim, bool):
             plt.xlim(xlim)
         if not isinstance(ylim, bool):
@@ -130,10 +134,11 @@ def plot_lowpass(data:dict, signalnr=5):
     firRun= fir_filter(data['run'][signalnr])
     firWalk.plot_coefficients(321)
     firWalk.plot_magnitude(322)
-    firWalk.plot_raw_signal(subplot=323)
+    firWalk.plot_raw_signal(title="RAW walk signal", subplot=323)
     firWalk.plot_filterd_signals("Filterd walk", subplot=324)
-    firRun.plot_raw_signal(subplot=325)
+    firRun.plot_raw_signal(title="RAW run signal", subplot=325)
     firRun.plot_filterd_signals(title='Filterd run', subplot=326)
+    plt.subplots_adjust(hspace=0.3)
 
 
 
@@ -143,6 +148,8 @@ def plot_lowpass(data:dict, signalnr=5):
 
 if __name__ == '__main__':
     data = data()
+    plt.figure(figsize=(8,13), tight_layout=True)
+    # plt.rc('text', usetex=True)
     plot_lowpass(data)
 
     # for key in data.keys():
@@ -155,5 +162,6 @@ if __name__ == '__main__':
     #         fir.plot_signals('signals of {}'.format(key),subplot=subplot)
     #         fir.plot_fir_coefficients(gain_subplot=subplot + 1)
 
+    plt.savefig("presentation/figures/plot_lti_lopas.png")
     plt.show()
 
