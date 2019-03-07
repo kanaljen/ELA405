@@ -7,7 +7,7 @@ from importdata import data
 
 class fir_filter:
     """A fir filter class"""
-    def __init__(self, signal:np.array, sample_rate=100, nsamples=100,ripple_db=60.0,cutoff_hz=2.0, with_rate=1.0, win='kaiser'):
+    def __init__(self, signal:np.array, sample_rate=100, nsamples=100,ripple_db=60.0,cutoff_hz=2.0, with_rate=1.0, win='kaiser', higpas=False):
         """
             Fir filter:
             Inputs:
@@ -30,6 +30,12 @@ class fir_filter:
         # Compute the Kaizer parameter for the FIR filter.
         self._N, self._beta = kaiserord(self._ripple_db,self._width)
         self._taps = firwin(self._N,cutoff_hz/self._nyq_rate, window=(win,self._beta))
+        if higpas == True:
+            print("Spectral inversion")
+            self._taps = -self._taps
+            print(self._taps[self._N//2])
+            self._taps[self._N//2] = self._taps[self._N//2] + 1
+            #self._taps[np.floor(self._nyq_rate)] =  self._taps[np.floor(self._nyq_rate)] + 1
         self._filterd_x = lfilter(self._taps,1.0,signal)
         delay = 0.5 * (self._N - 1)/self._sample_rate
         self._good_t = self._t[self._N-1:]-delay,
@@ -121,7 +127,7 @@ class fir_filter:
 
 
 
-def plot_lowpass(data:dict, signalnr=5):
+def plot_data(data:dict, signalnr=5, cutoff_hz=2, hp=False):
     # Layout of plot is:
     # -----------------------------------------------
     # | coefficients plot | magnetude response plot |
@@ -130,8 +136,8 @@ def plot_lowpass(data:dict, signalnr=5):
     # -----------------------------------------------
     # | Run signal raw    | walk singal filterd     |
     # -----------------------------------------------
-    firWalk= fir_filter(data['walk'][signalnr])
-    firRun= fir_filter(data['run'][signalnr])
+    firWalk= fir_filter(data['walk'][signalnr], cutoff_hz=cutoff_hz, higpas=hp)
+    firRun= fir_filter(data['run'][signalnr], cutoff_hz=cutoff_hz, higpas=hp)
     firWalk.plot_coefficients(321)
     firWalk.plot_magnitude(322)
     firWalk.plot_raw_signal(title="RAW walk signal", subplot=323)
@@ -139,6 +145,10 @@ def plot_lowpass(data:dict, signalnr=5):
     firRun.plot_raw_signal(title="RAW run signal", subplot=325)
     firRun.plot_filterd_signals(title='Filterd run', subplot=326)
     plt.subplots_adjust(hspace=0.3)
+    if hp == False:
+        plt.savefig("presentation/figures/plot_lti_lopas.png")
+    else:
+        plt.savefig("presentation/figures/plot_lti_hipas.png")
 
 
 
@@ -150,7 +160,8 @@ if __name__ == '__main__':
     data = data()
     plt.figure(figsize=(8,13), tight_layout=True)
     # plt.rc('text', usetex=True)
-    plot_lowpass(data)
+    plot_data(data)
+    #plot_data(data, cutoff_hz=2.5, hp=True)
 
     # for key in data.keys():
     #     if key == 'walk':
@@ -162,6 +173,5 @@ if __name__ == '__main__':
     #         fir.plot_signals('signals of {}'.format(key),subplot=subplot)
     #         fir.plot_fir_coefficients(gain_subplot=subplot + 1)
 
-    plt.savefig("presentation/figures/plot_lti_lopas.png")
     plt.show()
 
