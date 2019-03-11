@@ -34,6 +34,7 @@ class fir_filter:
         self._h_dB = 20*np.log(np.abs(self._freqz[1]))
         self._ishigpass = higpas
         if self._ishigpass == True:
+            print("Higpass filter init")
             self._taps = -self._taps
             self._taps[self._N//2] = self._taps[self._N//2] + 1
         self._filterd_x = lfilter(self._taps,1.0,signal)
@@ -199,21 +200,19 @@ def plot_lit_sytem(data, walk_run='walk', signalnr=4, cutoff_hz=2.0, savefig='pl
 
 if __name__ == '__main__':
     data = data()
-    # plt.rc('text', usetex=True)
-    # plt.figure(c)
-    # c += 1
-    # plot_filter_results(data, savefig="plot_lti_lopasl.png")
-    # plt.figure(c)
-    # c += 1
-    # plot_filter_results(data, savefig='plot_lti_higpas.png', cutoff_hz=2.5, hp=True)
+    plt.rc('text', usetex=True)
+    fig=plt.figure(figsize=(8,13), tight_layout=True)
+    plot_filter_results(data, savefig="plot_lti_lopasl.png")
+    fig=plt.figure(figsize=(8,13), tight_layout=True)
+    plot_filter_results(data, savefig='plot_lti_higpas.png', cutoff_hz=2.5, hp=True)
     # --------- Lopass filter plot ------------
     fig=plt.figure(figsize=(8,13), tight_layout=True)
     fig.suptitle("LOW pass filter")
     plot_lit_sytem(data,walk_run='run', signalnr=4, savefig='plot_system_lopass')
-    # --------- Higpass filter plot ------------
-    fig=plt.figure(figsize=(8,13), tight_layout=True)
-    fig.suptitle("HIGH pass filter")
-    plot_lit_sytem(data,walk_run='run', signalnr=4, savefig='plot_system_lopass', cutoff_hz=2.45, hp=True)
+    # # --------- Higpass filter plot ------------
+    # fig=plt.figure(figsize=(8,13), tight_layout=True)
+    # fig.suptitle("HIGH pass filter")
+    # plot_lit_sytem(data,walk_run='run', signalnr=4, savefig='plot_system_lopass', cutoff_hz=2.45, hp=True)
 
     # for key in data.keys():
     #     if key == 'walk':

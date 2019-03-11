@@ -138,4 +138,4 @@ if __name__ == '__main__':
     movingmedian_plot(data,'run',(4,1,4))
     plt.subplots_adjust(hspace=0.53)
     plt.savefig('plot.png')
-    #plt.show()
+    plt.show()
