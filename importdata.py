@@ -42,7 +42,6 @@ def splitData():
         ceil = 1000
         floor = 0
         set = []
-        print(key)
         while ceil < len(data[key]):
             set.append(data[key][floor:ceil])
             floor = ceil

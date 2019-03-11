@@ -4,7 +4,7 @@ from importdata import data
 def plotPair(number):
     dataset = data()
     subplot = 210
-    plt.figure(num=None, figsize=(5, 8), dpi=80, facecolor='w', edgecolor='k')
+    plt.figure(figsize=(5, 8), dpi=160)
     for key in dataset:
         subplot += 1
         plt.subplot(subplot)
