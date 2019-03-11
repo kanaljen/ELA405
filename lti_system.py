@@ -16,9 +16,14 @@ class fir_filter:
                 ripple_db: The desierd attenuation in the stopbond, in dB.
                 cutoff_hz: The cutoff frequency of the filter.
         """
-        print(type(signal))
+        if higpas==True:
+            print("--Init highpass --")
+        else:
+            print("--Init lowpass --")
         assert(len(signal) > 1)
-        self._signal = signal
+        # self._signal = signal
+        self._signal = np.pad(signal, (3,6), 'constant')
+        print(np.shape(self._signal))
         self._sample_rate = sample_rate
         self._cutoff_hz = cutoff_hz
         self._ripple_db = ripple_db
@@ -27,24 +32,41 @@ class fir_filter:
         self._t = np.arange(len(signal))/sample_rate
         self._nyq_rate = sample_rate/2
         self._width = with_rate/self._nyq_rate
+        if cutoff_hz/self._nyq_rate % 2 == 0:
+            while self._cutoff_hz/self._nyq_rate % 2 == 0:
+                print(self._cutoff_hz)
+                self._cutoff_hz -= 0.001
+        else:
+            print("not even")
+        print(self._cutoff_hz/self._nyq_rate)
         # Compute the Kaizer parameter for the FIR filter.
-        self._N, self._beta = kaiserord(self._ripple_db,self._width)
-        self._taps = firwin(self._N,cutoff_hz/self._nyq_rate, window=(win,self._beta))
+        self._N = 0
+        count = 0
+        print("ever loop")
+        while self._N%2 == 0:
+            print("ever loop")
+            self._N, self._beta = kaiserord(self._ripple_db,self._width + count)
+            count += 0.000001
+        #self._N, self._beta = kaiserord(self._ripple_db,self._width)
         self._ishigpass = higpas
+        #Spectral inversion if higpass is true
         if self._ishigpass == True:
             print("Higpass filter init")
+            print(self._N)
+            self._taps = firwin(self._N ,self._cutoff_hz/self._nyq_rate ,  pass_zero=False)
             self._taps = -self._taps
             self._taps[self._N//2] += 1
+        else:
+            self._taps = firwin(self._N,cutoff_hz/self._nyq_rate, window=(win,self._beta))
         self._freqz = freqz(self._taps, worN=8000)
         self._h_dB = 20*np.log(np.abs(self._freqz[1]) + 0.00001)
         self._filterd_x = lfilter(self._taps,1.0,signal)
+        print("filterd median ={}".format(np.median(self._filterd_x)))
         delay = 0.5 * (self._N - 1)/self._sample_rate
         self._good_t = self._t[self._N-1:]-delay,
         self._good_signal = self._filterd_x[self._N-1:]
-        self._fir_axis = list()
-        self._fir_axis.append([0.42,0.6, 0.45, 0.25 ])
-        self._fir_axis.append([0.42,0.25,0.45,0.25])
         self._supblot_limmits = list()
+        m,s = self.get_statistics()
 
     def get_statistics(self):
         median = np.median(self._good_signal)
@@ -58,8 +80,6 @@ class fir_filter:
             plt.subplot(subplot)
         # Plot the filterd signal
         m,s = self.get_statistics()
-        #t = np.arange(len(self._good_t))
-        #t = self._good_t[0]
         t = self._t
         hig_sima = t*0 + (m+s)
         low_sima = t*0 + (m-s)
@@ -78,7 +98,7 @@ class fir_filter:
     def plot_raw_signal(self, title="", xlim=False,ylim=False,subplot=False):
         if not isinstance(subplot, bool):
             plt.subplot(subplot)
-        plt.plot(self._t,self._signal)
+        plt.plot(self._t,self._signal[3:-6])
         plt.title(title)
         plt.xlabel("time (t)")
         plt.ylabel("amplitude (g)")
@@ -169,8 +189,9 @@ def plot_filter_results(data:dict, savefig='temp.png', signalnr=5, cutoff_hz=2, 
     # -----------------------------------------------
     # | Run signal raw    | walk singal filterd     |
     # -----------------------------------------------
-    firWalk= fir_filter(data['walk'][signalnr], cutoff_hz=cutoff_hz, higpas=hp)
-    firRun= fir_filter(data['run'][signalnr], cutoff_hz=cutoff_hz, higpas=hp)
+    ripple_db = 60
+    firWalk= fir_filter(data['walk'][signalnr], cutoff_hz=cutoff_hz, higpas=hp, ripple_db=ripple_db)
+    firRun= fir_filter(data['run'][signalnr], cutoff_hz=cutoff_hz, higpas=hp, ripple_db=ripple_db)
     # firWalk.plot_coefficients(321)
     # firWalk.plot_magnitude(322)
     firWalk.plot_raw_signal(title="RAW walk signal", subplot=221)
@@ -210,24 +231,24 @@ if __name__ == '__main__':
     data = data()
     plt.rc('text', usetex=True)
     higpa_cutoff_hz=2.8
-    # --------- Lopass filterd signals------------
-    fig=plt.figure(figsize=(8,13), tight_layout=False)
-    fig.suptitle("LOW pass filterd signal")
-    plot_filter_results(data, savefig="plot_lti_lopasl.png")
+    # # --------- Lopass filterd signals------------
+    # fig=plt.figure(figsize=(8,13), tight_layout=False)
+    # fig.suptitle("LOW pass filterd signal")
+    # plot_filter_results(data, savefig="plot_lti_lopasl.png")
     # --------- Highpass filterd signals------------
     fig=plt.figure(figsize=(8,13), tight_layout=False)
     fig.suptitle("HIGH pass filterd signal", fontsize=18)
     plot_filter_results(data, savefig='plot_lti_higpas.png', cutoff_hz=higpa_cutoff_hz, hp=True)
 
 
-    # --------- Lopass filter plot ------------
-    fig=plt.figure(figsize=(8,13), tight_layout=False)
-    fig.suptitle("LOW pass filter")
-    plot_lit_sytem(data,walk_run='run', signalnr=4, savefig='plot_system_lopass.png')
+    # # --------- Lopass filter plot ------------
+    # fig=plt.figure(figsize=(8,13), tight_layout=False)
+    # fig.suptitle("LOW pass filter")
+    # plot_lit_sytem(data,walk_run='run', signalnr=4, savefig='plot_system_lopass.png')
     # --------- Higpass filter plot ------------
-    fig=plt.figure(figsize=(8,13), tight_layout=False)
-    fig.suptitle("HIGH pass filter", fontsize=18, ha = 'center', va='top')
-    plot_lit_sytem(data,walk_run='run', signalnr=4, savefig='plot_system_higpass.png', cutoff_hz=higpa_cutoff_hz, hp=True)
+    # fig=plt.figure(figsize=(8,13), tight_layout=False)
+    # fig.suptitle("HIGH pass filter", fontsize=18, ha = 'center', va='top')
+    # plot_lit_sytem(data,walk_run='run', signalnr=4, savefig='plot_system_higpass.png', cutoff_hz=higpa_cutoff_hz, hp=True)
 
     # for key in data.keys():
     #     if key == 'walk':
@@ -239,5 +260,5 @@ if __name__ == '__main__':
     #         fir.plot_signals('signals of {}'.format(key),subplot=subplot)
     #         fir.plot_fir_coefficients(gain_subplot=subplot + 1)
 
-    #plt.show()
+    plt.show()
 
