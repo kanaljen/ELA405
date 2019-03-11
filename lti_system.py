@@ -93,10 +93,11 @@ class fir_filter:
             plt.subplot(subplot)
         w = self._freqz[0]
         h = self._freqz[1]
-        plt.plot((w/np.pi)*self._nyq_rate,np.absolute(h),linewidth=2)
+        plt.plot((w/np.pi)*self._nyq_rate,np.absolute(h))
+        #plt.stem((w/np.pi)*self._nyq_rate,np.absolute(h))
         plt.xlabel('Frequecy (Hz)')
         plt.ylabel('Gain')
-        plt.title('Frequncy Response')
+        plt.title('Step Response')
         plt.ylim(-0.05,1.05)
         plt.xlim(-0.5,10)
         plt.grid(True)
@@ -200,6 +201,7 @@ def plot_lit_sytem(data, walk_run='walk', signalnr=4, cutoff_hz=2.0, savefig='pl
     fir.plot_frequesy_response(shape + count)
     count += 1
     fir.plot_phase_response(shape+count)
+    plt.subplots_adjust(hspace=0.3)
     plt.savefig("presentation/figures/{}".format(savefig))
 
 
@@ -209,22 +211,22 @@ if __name__ == '__main__':
     plt.rc('text', usetex=True)
     higpa_cutoff_hz=2.8
     # --------- Lopass filterd signals------------
-    # fig=plt.figure(figsize=(8,13), tight_layout=True)
-    # fig.suptitle("LOW pass filterd signal")
-    # plot_filter_results(data, savefig="plot_lti_lopasl.png")
+    fig=plt.figure(figsize=(8,13), tight_layout=False)
+    fig.suptitle("LOW pass filterd signal")
+    plot_filter_results(data, savefig="plot_lti_lopasl.png")
     # --------- Highpass filterd signals------------
-    fig=plt.figure(figsize=(8,13), tight_layout=True)
-    fig.suptitle("HIGH pass filterd signal")
+    fig=plt.figure(figsize=(8,13), tight_layout=False)
+    fig.suptitle("HIGH pass filterd signal", fontsize=18)
     plot_filter_results(data, savefig='plot_lti_higpas.png', cutoff_hz=higpa_cutoff_hz, hp=True)
 
 
     # --------- Lopass filter plot ------------
-    # fig=plt.figure(figsize=(8,13), tight_layout=True)
-    # fig.suptitle("LOW pass filter")
-    # plot_lit_sytem(data,walk_run='run', signalnr=4, savefig='plot_system_lopass.png')
+    fig=plt.figure(figsize=(8,13), tight_layout=False)
+    fig.suptitle("LOW pass filter")
+    plot_lit_sytem(data,walk_run='run', signalnr=4, savefig='plot_system_lopass.png')
     # --------- Higpass filter plot ------------
-    fig=plt.figure(figsize=(8,13), tight_layout=True)
-    fig.suptitle("HIGH pass filter")
+    fig=plt.figure(figsize=(8,13), tight_layout=False)
+    fig.suptitle("HIGH pass filter", fontsize=18, ha = 'center', va='top')
     plot_lit_sytem(data,walk_run='run', signalnr=4, savefig='plot_system_higpass.png', cutoff_hz=higpa_cutoff_hz, hp=True)
 
     # for key in data.keys():
@@ -237,5 +239,5 @@ if __name__ == '__main__':
     #         fir.plot_signals('signals of {}'.format(key),subplot=subplot)
     #         fir.plot_fir_coefficients(gain_subplot=subplot + 1)
 
-    plt.show()
+    #plt.show()
 
