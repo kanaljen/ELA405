@@ -209,23 +209,23 @@ if __name__ == '__main__':
     plt.rc('text', usetex=True)
     higpa_cutoff_hz=2.8
     # --------- Lopass filterd signals------------
-    fig=plt.figure(figsize=(8,13), tight_layout=True)
-    fig.suptitle("LOW pass filterd signal")
-    plot_filter_results(data, savefig="plot_lti_lopasl.png")
-    # --------- Highpass filterd signals------------
     # fig=plt.figure(figsize=(8,13), tight_layout=True)
-    # fig.suptitle("HIGH pass filterd signal")
-    # plot_filter_results(data, savefig='plot_lti_higpas.png', cutoff_hz=higpa_cutoff_hz, hp=True)
+    # fig.suptitle("LOW pass filterd signal")
+    # plot_filter_results(data, savefig="plot_lti_lopasl.png")
+    # --------- Highpass filterd signals------------
+    fig=plt.figure(figsize=(8,13), tight_layout=True)
+    fig.suptitle("HIGH pass filterd signal")
+    plot_filter_results(data, savefig='plot_lti_higpas.png', cutoff_hz=higpa_cutoff_hz, hp=True)
 
 
     # --------- Lopass filter plot ------------
-    fig=plt.figure(figsize=(8,13), tight_layout=True)
-    fig.suptitle("LOW pass filter")
-    plot_lit_sytem(data,walk_run='run', signalnr=4, savefig='plot_system_lopass.png')
-    # --------- Higpass filter plot ------------
     # fig=plt.figure(figsize=(8,13), tight_layout=True)
-    # fig.suptitle("HIGH pass filter")
-    # plot_lit_sytem(data,walk_run='run', signalnr=4, savefig='plot_system_lopass', cutoff_hz=higpa_cutoff_hz, hp=True)
+    # fig.suptitle("LOW pass filter")
+    # plot_lit_sytem(data,walk_run='run', signalnr=4, savefig='plot_system_lopass.png')
+    # --------- Higpass filter plot ------------
+    fig=plt.figure(figsize=(8,13), tight_layout=True)
+    fig.suptitle("HIGH pass filter")
+    plot_lit_sytem(data,walk_run='run', signalnr=4, savefig='plot_system_higpass.png', cutoff_hz=higpa_cutoff_hz, hp=True)
 
     # for key in data.keys():
     #     if key == 'walk':
