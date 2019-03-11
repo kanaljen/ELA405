@@ -27,23 +27,24 @@ def butter_highpass_filter(data, cutoff, fs, order=5):
     y = signal.filtfilt(b, a, data)
     return y
 
-fps = 30
-sine_fq = 10 #Hz
-duration = 10 #seconds
-sine_5Hz = sine_generator(fps,sine_fq,duration)
-sine_fq = 1 #Hz
-duration = 10 #seconds
-sine_1Hz = sine_generator(fps,sine_fq,duration)
+if __name__ == '__main__':
+    fps = 30
+    sine_fq = 10 #Hz
+    duration = 10 #seconds
+    sine_5Hz = sine_generator(fps,sine_fq,duration)
+    sine_fq = 1 #Hz
+    duration = 10 #seconds
+    sine_1Hz = sine_generator(fps,sine_fq,duration)
 
-sine = sine_5Hz + sine_1Hz
+    sine = sine_5Hz + sine_1Hz
 
-filtered_sine = butter_highpass_filter(sine.data,10,fps)
+    filtered_sine = butter_highpass_filter(sine.data,10,fps)
 
-plt.figure(figsize=(20,10))
-plt.subplot(211)
-plt.plot(range(len(sine)),sine)
-plt.title('generated signal')
-plt.subplot(212)
-plt.plot(range(len(filtered_sine)),filtered_sine)
-plt.title('filtered signal')
-plt.show()
+    plt.figure(figsize=(20,10))
+    plt.subplot(211)
+    plt.plot(range(len(sine)),sine)
+    plt.title('generated signal')
+    plt.subplot(212)
+    plt.plot(range(len(filtered_sine)),filtered_sine)
+    plt.title('filtered signal')
+    plt.show()

@@ -30,13 +30,13 @@ class fir_filter:
         # Compute the Kaizer parameter for the FIR filter.
         self._N, self._beta = kaiserord(self._ripple_db,self._width)
         self._taps = firwin(self._N,cutoff_hz/self._nyq_rate, window=(win,self._beta))
-        self._freqz = freqz(self._taps, worN=8000)
-        self._h_dB = 20*np.log(np.abs(self._freqz[1]))
         self._ishigpass = higpas
         if self._ishigpass == True:
             print("Higpass filter init")
             self._taps = -self._taps
-            self._taps[self._N//2] = self._taps[self._N//2] + 1
+            self._taps[self._N//2] += 1
+        self._freqz = freqz(self._taps, worN=8000)
+        self._h_dB = 20*np.log(np.abs(self._freqz[1]) + 0.00001)
         self._filterd_x = lfilter(self._taps,1.0,signal)
         delay = 0.5 * (self._N - 1)/self._sample_rate
         self._good_t = self._t[self._N-1:]-delay,
@@ -88,7 +88,6 @@ class fir_filter:
             plt.ylim(ylim)
         plt.grid(True)
 
-
     def plot_magnitude(self,subplot=False):
         if not isinstance(subplot, bool):
             plt.subplot(subplot)
@@ -123,22 +122,25 @@ class fir_filter:
         plt.xlabel(r'Normalized Frequency (x$\pi$rad/sample)')
         plt.title(r'Frequency response')
 
-    def plot_impulse_response(self, subplot=False):
+    def plot_impulse_response(self, a=1, subplot=False):
         if not isinstance(subplot, bool):
             plt.subplot(subplot)
         l = len(self._taps)
-        impulse = np.repeat(0.,l); impulse[0] =1.
+        impulse = np.repeat(0.,l)
+        impulse[0] = 1
         x = np.arange(0,l)
         response = lfilter(self._taps,1,impulse)
         plt.stem(x, response)
+        # plt.plot(x, np.sin(x))
         plt.ylabel('Amplitude')
         plt.xlabel(r'n (samples)')
         plt.title(r'Impulse response')
+        plt.grid(True)
 
     def plot_phase_response(self, subplot=False):
         if not isinstance(subplot, bool):
             plt.subplot(subplot)
-        h_phase = np.unwrap(np.arctan2(np.imag(self._freqz[1]), np.real(self._freqz[1])))
+        h_phase = np.unwrap(np.arctan2(np.imag(self._freqz[0]), np.real(self._freqz[1])))
         plt.plot(self._freqz[0]/np.max(self._freqz[0]), h_phase)
         plt.ylabel('Phase (radians)')
         plt.xlabel(r'Normalized Frequency (x$\pi$rad/sample)')
@@ -189,11 +191,15 @@ def plot_lit_sytem(data, walk_run='walk', signalnr=4, cutoff_hz=2.0, savefig='pl
     # | Phase response
     # -----------------------------------------------
     fir = fir_filter(data[walk_run][signalnr], cutoff_hz=cutoff_hz, higpas=hp)
-    fir.plot_impulse_response(411)
-    fir.plot_magnitude(412)
-    fir.plot_frequesy_response(413)
-    fir.plot_phase_response(414)
-
+    count = 1
+    shape = 410
+    fir.plot_impulse_response(subplot=shape + count)
+    count += 1
+    fir.plot_magnitude(shape + count)
+    count += 1
+    fir.plot_frequesy_response(shape + count)
+    count += 1
+    fir.plot_phase_response(shape+count)
     plt.savefig("presentation/figures/{}".format(savefig))
 
 
@@ -201,18 +207,25 @@ def plot_lit_sytem(data, walk_run='walk', signalnr=4, cutoff_hz=2.0, savefig='pl
 if __name__ == '__main__':
     data = data()
     plt.rc('text', usetex=True)
+    higpa_cutoff_hz=2.8
+    # --------- Lopass filterd signals------------
     fig=plt.figure(figsize=(8,13), tight_layout=True)
+    fig.suptitle("LOW pass filterd signal")
     plot_filter_results(data, savefig="plot_lti_lopasl.png")
-    fig=plt.figure(figsize=(8,13), tight_layout=True)
-    plot_filter_results(data, savefig='plot_lti_higpas.png', cutoff_hz=2.5, hp=True)
+    # --------- Highpass filterd signals------------
+    # fig=plt.figure(figsize=(8,13), tight_layout=True)
+    # fig.suptitle("HIGH pass filterd signal")
+    # plot_filter_results(data, savefig='plot_lti_higpas.png', cutoff_hz=higpa_cutoff_hz, hp=True)
+
+
     # --------- Lopass filter plot ------------
     fig=plt.figure(figsize=(8,13), tight_layout=True)
     fig.suptitle("LOW pass filter")
-    plot_lit_sytem(data,walk_run='run', signalnr=4, savefig='plot_system_lopass')
-    # # --------- Higpass filter plot ------------
+    plot_lit_sytem(data,walk_run='run', signalnr=4, savefig='plot_system_lopass.png')
+    # --------- Higpass filter plot ------------
     # fig=plt.figure(figsize=(8,13), tight_layout=True)
     # fig.suptitle("HIGH pass filter")
-    # plot_lit_sytem(data,walk_run='run', signalnr=4, savefig='plot_system_lopass', cutoff_hz=2.45, hp=True)
+    # plot_lit_sytem(data,walk_run='run', signalnr=4, savefig='plot_system_lopass', cutoff_hz=higpa_cutoff_hz, hp=True)
 
     # for key in data.keys():
     #     if key == 'walk':
