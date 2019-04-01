@@ -33,6 +33,7 @@ end
 title("Sum of signals")
 xlabel("F(Hz)")
 ylabel("P1(f)")
+xlim([50-2 50+2])
 
 subplot(2,1,2)
 plot(steps, peek1)
