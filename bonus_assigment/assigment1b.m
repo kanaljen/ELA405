@@ -1,4 +1,5 @@
 close all
+% Assigment 1b
 % Generate a signal 1 second long with 1000 sampling frequency
 % Generate noise
 % Plot signal, noise, and their sum (a noisy signal)
@@ -10,21 +11,15 @@ T = 1/Fs;             % Sampling period
 L = Fs;               % Length of signal (Always one second long)
 %L = 1000;               % Length of signal (Always one second long)
 t = (0:L-1)*T;        % Time vector
-fucktard = 1:150;
+stemp = 1:150;
 
 w0 = 50;      % Hz
-
 
 %k = (1-0)/(0-150);
 f = @(t) -1*t + 1;
 
-%Form a signal containing a 50 Hz sinusoid of amplitude 1.
-%S = f(t).*sin(2*pi*50*t);
+%Form a signal containing a 49 to 50 Hz sinusoid of amplitude 1.
 S =  cos(2*pi.*t.*(2.*t + 49));
-%S = (k*t + 1).*(1/2).*( exp(-j*2*pi*w0*t) + exp(j*2*pi*w0*t)) ;
-
-%fplot(f)
-%return
 
 %Noise
 N = randn(size(t));
@@ -58,7 +53,7 @@ ylim([0, 1])
 
 function x = mytestplot()
     figure(1), subplot(1,2,1)
-    plot(1000*t(fucktard),f(fucktard), '-*')
+    plot(1000*t(stemp),f(stemp), '-*')
     figure(1), subplot(1,2,2)
-    plot(1000*t(fucktard),fS(fucktard), '-*')
+    plot(1000*t(stemp),fS(stemp), '-*')
 end
