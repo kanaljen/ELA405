@@ -1,7 +1,7 @@
 import numpy as np
 import matplotlib.pyplot as plt
 import seaborn as se
-from scipy.signal import kaiserord, lfilter, firwin, freqz, firls
+from scipy.signal import kaiserord, lfilter, firwin, freqz, firls, step2
 from plot import gen_frequesyresponse, movingmedian_plot, avrage_data
 from importdata import data
 
@@ -71,6 +71,10 @@ class fir_filter:
         self._good_signal = self._filterd_x[self._N-1:]
         self._supblot_limmits = list()
         m,s = self.get_statistics()
+        # Step responce for the lit system.
+        self._responce = False
+
+
 
     def get_statistics(self):
         median = np.median(self._good_signal)
@@ -155,6 +159,7 @@ class fir_filter:
         impulse[0] = 1
         x = np.arange(0,l)
         response = lfilter(self._taps,1,impulse)
+        self._responce = response
         #plt.stem(x, response)
         plt.plot(x, response)
         # plt.plot(x, np.sin(x))
@@ -179,6 +184,22 @@ class fir_filter:
         plt.plot(self._taps, 'bo-', linewidth=2)
         plt.title("Filter Coefficeents ({} taps)".format(self._N))
         plt.grid()
+
+    def plot_step_responce(self, subplot=False):
+        if not isinstance(subplot, bool):
+            plt.subplot(subplot)
+        if not isinstance(self._responce, bool):
+            self._step = np.cumsum(self._responce)
+            x = np.arange(0,len(self._step))
+            plt.plot(x, self._step)
+            plt.grid(True)
+            plt.ylabel('Amplitude')
+            plt.xlabel(r'n (samples)')
+            plt.title(r'Step response')
+        else:
+            print("self._responce={}".format(self._responce))
+            assert(False)
+
 
 
     def __str__(self):
@@ -222,8 +243,10 @@ def plot_lit_sytem(data, walk_run='walk', signalnr=4, cutoff_hz=2.0, savefig='pl
     shape = 410
     fir.plot_impulse_response(subplot=shape + count)
     count += 1
-    fir.plot_magnitude(shape + count)
+    fir.plot_step_responce(subplot=shape + count)
     count += 1
+    # fir.plot_magnitude(shape + count)
+    # count += 1
     fir.plot_frequesy_response(shape + count)
     count += 1
     fir.plot_phase_response(shape+count)
